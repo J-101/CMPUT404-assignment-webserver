@@ -44,13 +44,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
         data = self.data.decode('utf-8').split('\r\n')
         method, initial_path, _ = data[0].split()
         path = ""
-        
-        # Figure out content type
-        content_type = ""
-        for content, mime in mimes.items():
-            if content in initial_path:
-                content_type = mime
-                break
             
         # If not a GET request
         if (method != "GET"):
@@ -73,6 +66,13 @@ class MyWebServer(socketserver.BaseRequestHandler):
                     # print(send)
                     self.request.sendall(send.encode('utf-8'))
             path = "./www" + initial_path
+            
+        # Figure out content type
+        content_type = ""
+        for content, mime in mimes.items():
+            if content in initial_path:
+                content_type = mime
+                break
 
         # Check if file exists
         if (os.path.exists(path)):
