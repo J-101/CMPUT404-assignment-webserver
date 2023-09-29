@@ -44,11 +44,12 @@ class MyWebServer(socketserver.BaseRequestHandler):
         data = self.data.decode('utf-8').split('\r\n')
         method, initial_path, _ = data[0].split()
         path = ""
+        close_connection = "Connection: close\r\n"
             
         # If not a GET request
         if (method != "GET"):
             # If not a GET request send 405 status
-            send = "HTTP/1.1 405 Not FOUND!\r\n"
+            send = "HTTP/1.1 405 Not FOUND!\r\n" + close_connection
             self.request.sendall(send.encode('utf-8'))
         # If it is a GET request
         else:
@@ -62,7 +63,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                     initial_path += "index.html"
                 else:
                     # Send 301 status with new location
-                    send = "HTTP/1.1 301 Moved Permanently\r\nLocation:" + initial_path + "/\r\n301 Moved Permanently"
+                    send = "HTTP/1.1 301 Moved Permanently\r\nLocation:" + initial_path + "/\r\n301 Moved Permanently\r\n" + close_connection
                     # print(send)
                     self.request.sendall(send.encode('utf-8'))
             path = "./www" + initial_path
@@ -75,14 +76,14 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 break
 
         # Check if file exists
-        if (os.path.exists(path)):
+        if (os.path.isfile(path)):
             with open(path, 'r') as file:
                 data = file.read()
             # Response with 200 status and file contents
-            send = 'HTTP/1.1 200 OK\r\n'+"Content-Type:" + content_type +"\r\n\r\n" + data # Blank between HTTP heads and body
+            send = 'HTTP/1.1 200 OK\r\n' + close_connection + "Content-Type:" + content_type +"\r\n\r\n" + data # Blank between HTTP heads and body
         else:
             # If not existent, send 404 status
-            send = "HTTP/1.1 404 Not Found\r\n404 Not Found"
+            send = "HTTP/1.1 404 Not Found\r\n404 Not Found\r\n" + close_connection
             
         self.request.sendall(send.encode('utf-8'))
 
