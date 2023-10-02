@@ -71,19 +71,23 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 content_type = mime
                 break
 
+        # Check if path points to a directory
+        if path.endswith('/'):
+            # Add "index.html" to directory path
+            path += "index.html"
+
         # Check if file exists
-        if (path and path.startswith("./www/") and "." in path):
-            try:
-                with open(path, 'r') as file:
-                    data = file.read()
-                # Response with 200 status and file contents
-                send = 'HTTP/1.1 200 OK\r\n' + close_connection + "Content-Type:" + content_type + "\r\n\r\n" + data # Blank between HTTP heads and body
-            except FileNotFoundError:
-                # If the file does not exist, send 404 status
-                send = "HTTP/1.1 404 Not Found\r\n404 Not Found\r\n" + close_connection
-        else:
-            # If the path invalid, send 404 status
+        try:
+            with open(path, 'r') as file:
+                data = file.read()
+            # Response with 200 status and file contents
+            send = 'HTTP/1.1 200 OK\r\n' + close_connection + "Content-Type:" + content_type +"\r\n\r\n" + data # Blank between HTTP headers and body
+        except FileNotFoundError:
+            # If not existent, send 404 status
             send = "HTTP/1.1 404 Not Found\r\n404 Not Found\r\n" + close_connection
+        except IsADirectoryError:
+            # If it's a directory, return a 301 status with a trailing slash
+            send = "HTTP/1.1 301 Moved Permanently\r\nLocation:" + initial_path + "/\r\n301 Moved Permanently\r\n" + close_connection
 
         self.request.sendall(send.encode('utf-8'))
 
