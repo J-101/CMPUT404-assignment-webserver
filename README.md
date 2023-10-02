@@ -27,6 +27,9 @@ compatible) http://docs.python.org/2/library/socketserver.html
 External Source Code/References
 ========================
 https://www.geeksforgeeks.org/file-searching-using-python/
+
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+
 https://stackoverflow.com/questions/15433188/what-is-the-difference-between-r-n-r-and-n
+
 https://developer.mozilla.org/en-US/docs/Learn/Server-side/Configuring_server_MIME_types
