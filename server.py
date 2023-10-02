@@ -1,6 +1,5 @@
 #  coding: utf-8 
 import socketserver
-import os
 
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos
 # 
@@ -26,9 +25,6 @@ import os
 # run: python freetests.py
 
 # try: curl -v -X GET http://127.0.0.1:8080/
-
-# Directory path of current file
-dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # Dictionary storing MIME types
 mimes = {".html": "text/html", ".css": "text/css"}
@@ -76,15 +72,19 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 break
 
         # Check if file exists
-        if (os.path.isfile(path)):
-            with open(path, 'r') as file:
-                data = file.read()
-            # Response with 200 status and file contents
-            send = 'HTTP/1.1 200 OK\r\n' + close_connection + "Content-Type:" + content_type +"\r\n\r\n" + data # Blank between HTTP heads and body
+        if (path and path.startswith("./www/") and "." in path):
+            try:
+                with open(path, 'r') as file:
+                    data = file.read()
+                # Response with 200 status and file contents
+                send = 'HTTP/1.1 200 OK\r\n' + close_connection + "Content-Type:" + content_type + "\r\n\r\n" + data # Blank between HTTP heads and body
+            except FileNotFoundError:
+                # If the file does not exist, send 404 status
+                send = "HTTP/1.1 404 Not Found\r\n404 Not Found\r\n" + close_connection
         else:
-            # If not existent, send 404 status
+            # If the path invalid, send 404 status
             send = "HTTP/1.1 404 Not Found\r\n404 Not Found\r\n" + close_connection
-            
+
         self.request.sendall(send.encode('utf-8'))
 
 if __name__ == "__main__":
